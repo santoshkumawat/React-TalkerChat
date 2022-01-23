@@ -1,4 +1,4 @@
-const socket = io("https://i-chat-app-santoshkumaawat.vercel.app:8000");
+const socket = io("https:76.223.121.106:8000");
 
 const form = document.getElementById("send-container");
 
