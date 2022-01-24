@@ -14,7 +14,7 @@ app.use(require("cors")());
 //   next();
 // });
 
-const io = require("socket.io")(8000, {
+const io = require("socket.io")('https://i-chat-app.vercel.app/', {
   cors: {
     origin: "*",
   },
