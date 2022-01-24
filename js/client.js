@@ -1,4 +1,4 @@
-const socket = io("https://i-chat-app.vercel.app/");
+const socket = io("http://localhost:8000");
 
 const form = document.getElementById("send-container");
 
@@ -40,7 +40,7 @@ socket.on("user-joined", (name) => {
 });
 
 
-    
+
 socket.on("receive", (data) => {
   append(`${data.name}:${data.message}`, "left");
 

@@ -14,7 +14,7 @@ app.use(require("cors")());
 //   next();
 // });
 
-const io = require("socket.io")('https://i-chat-app.vercel.app/', {
+const io = require("socket.io")(8000, {
   cors: {
     origin: "*",
   },
@@ -29,7 +29,7 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("user-joined", name);
   });
 
- 
+
   socket.on("send", (message) => {
     socket.broadcast.emit("receive", {
       message: message,
