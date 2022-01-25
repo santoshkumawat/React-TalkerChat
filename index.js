@@ -6,6 +6,11 @@ const http = require("http");
 const cors = require("cors");
 
 app.use(require("cors")());
+app.use('/', express.static('public'))
+app.get('test', (req, res) => {
+  res.status('200');
+  return res.send('Hello world');
+})
 
 // app.use((req, res, next) => {
 //   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -14,7 +19,13 @@ app.use(require("cors")());
 //   next();
 // });
 
-const io = require("socket.io")(process.env.PORT || 8000, {
+const httpServer = http.createServer(app);
+
+httpServer.listen(process.env.PORT || 8000, () => {
+  console.log('Server started at ', process.env.PORT || 8000);
+});
+
+const io = require("socket.io")(httpServer, {
   cors: {
     origin: "*",
   },
