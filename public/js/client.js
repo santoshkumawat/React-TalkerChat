@@ -1,4 +1,6 @@
-const socket = io();
+const socket = io({
+  transports: ['polling', 'websocket']
+});
 
 const form = document.getElementById("send-container");
 
