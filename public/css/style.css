@@ -8,7 +8,8 @@ body {
   font-family: "Poppins", sans-serif;
 }
 .chat-app-container {
-  max-width: 700px;
+  max-width: 600px;
+  width:100%;
   margin: 0 auto;
   border: 1px solid grey;
   background: #fff;
@@ -32,6 +33,7 @@ nav.header {
 h1 {
   /* padding: 0 20px;
   margin-top: 10px; */
+  margin-left: 50px;
   font-size: 24px;
   text-align: center;
 }
@@ -117,7 +119,9 @@ h1 {
   text-align: right;
   text-transform: capitalize;
 }
-
+.footer-inner{
+  margin-bottom: 15px;
+}
 /* ============ Responsive Deisgn For Mobile ============== */
 @media (max-width: 500px) {
   .chat-app-container {
