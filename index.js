@@ -3,9 +3,10 @@ const express = require("express");
 const app = express();
 const http = require("http");
 const cors = require("cors");
+const path = require('path')
 
 app.use(require("cors")());
-app.use('/', express.static('public'))
+app.use('/', express.static(path.join(__dirname, 'public')));
 app.get('test', (req, res) => {
   res.status('200');
   return res.send('Hello world');
