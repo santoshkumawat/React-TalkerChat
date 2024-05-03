@@ -1,43 +1,35 @@
 const express = require("express");
 const app = express();
-const http = require("http");
-const cors = require("cors");
-const path = require("path");
+const http = require("http").Server(app);
+const io = require("socket.io")(http);
 
-const httpServer = http.createServer(app);
-const io = require("socket.io")(httpServer, {
-  cors: {
-    origin: "*",
-  },
-});
+const PORT = process.env.PORT || 8000;
 
-const users = {}; // Track users
+// Serve static files from the 'public' directory
+app.use(express.static("public"));
 
+// Handle socket connections
 io.on("connection", (socket) => {
+  console.log("A user connected");
+
   // When a new user joins
   socket.on("new-user-joined", (name) => {
-    users[socket.id] = name;
+    console.log(name + " joined the chat");
     io.emit("user-joined", name); // Broadcast to all users
   });
 
   // When a user sends a message
   socket.on("send-message", (message) => {
-    io.emit("receive-message", { 
-      message: message, 
-      name: users[socket.id] 
-    });
+    io.emit("receive-message", message);
   });
 
   // When a user disconnects
-  socket.on('disconnect', () => {
-    io.emit("user-left", users[socket.id]);
-    delete users[socket.id];
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
   });
 });
 
-app.use(cors());
-app.use('/', express.static(path.join(__dirname, 'public')));
-
-httpServer.listen(process.env.PORT || 8000, () => {
-  console.log('Server started at ', process.env.PORT || 8000);
+// Start the server
+http.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
