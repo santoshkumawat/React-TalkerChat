@@ -1,53 +1,55 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat App</title>
-</head>
-<body>
-  <input type="text" id="nameInput" placeholder="Enter your name">
-  <button id="joinBtn">Join Chat</button>
-  <input type="text" id="messageInput" placeholder="Type your message">
-  <button id="sendBtn">Send</button>
-  <ul id="messages"></ul>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Talker</title>
+    <script defer src="./js/socket.io.min.js"></script>
+    <script defer src="./js/client.js"></script>
+    <link rel="stylesheet" href="./css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="shortcut icon" href="./Chat.png" type="image/x-icon">
+  </head>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io();
-
-    const nameInput = document.getElementById("nameInput");
-    const joinBtn = document.getElementById("joinBtn");
-    const messageInput = document.getElementById("messageInput");
-    const sendBtn = document.getElementById("sendBtn");
-    const messagesList = document.getElementById("messages");
-
-    joinBtn.addEventListener("click", () => {
-      const name = nameInput.value.trim();
-      if (name !== "") {
-        socket.emit("new-user-joined", name);
-      }
-    });
-
-    sendBtn.addEventListener("click", () => {
-      const message = messageInput.value.trim();
-      if (message !== "") {
-        socket.emit("send-message", message);
-      }
-    });
-
-    socket.on("user-joined", (name) => {
-      const listItem = document.createElement("li");
-      listItem.textContent = `${name} joined the chat`;
-      messagesList.appendChild(listItem);
-    });
-
-    socket.on("receive-message", (message) => {
-      const listItem = document.createElement("li");
-      listItem.textContent = message;
-      messagesList.appendChild(listItem);
-    });
-  </script>
-</body>
+  <body>
+    <div class="chat-app-container">
+      <nav class="header">
+          <div class="header-inner">
+        <img class="logo" src="Chat.png" alt="" />
+        <h1>Welcome to the Talker</h1>
+    </div>
+        <h5 id="userName">Username: </h5>
+      </nav>
+      <div class="message-box">
+      </div>
+      <div class="send">
+        <form action="#" id="send-container">
+          <input
+            type="text"
+            name="messageInp"
+            id="messageInp"
+            placeholder="Type a message..."
+            required
+          />
+          <button class="btn" type="submit">Send</button>
+        </form>
+      </div>
+      <footer class="footer">
+        <!-- Copyright -->
+        <div class="footer-inner">
+          <p>© 2022 Copyright Talker.</p>
+          <p>
+            Created by Pradeep and Santosh.
+          </p>
+        </div>
+        <!-- Copyright -->
+      </footer>
+    </div>
+  </body>
 </html>
