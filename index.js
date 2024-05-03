@@ -2,48 +2,41 @@ const express = require("express");
 const app = express();
 const http = require("http");
 const cors = require("cors");
-const path = require("path"); // Add this line
-
-app.use(cors()); 
-app.use('/', express.static(path.join(__dirname, 'public')));
+const path = require("path");
 
 const httpServer = http.createServer(app);
-
 const io = require("socket.io")(httpServer, {
   cors: {
-    origin: "*", 
+    origin: "*",
   },
 });
 
-const users = {}; 
-const userSockets = {}; // Track sockets of users
+const users = {}; // Track users
 
 io.on("connection", (socket) => {
+  // When a new user joins
   socket.on("new-user-joined", (name) => {
     users[socket.id] = name;
-    userSockets[name] = socket; // Associate user name with socket
-    socket.broadcast.emit("user-joined", name);
+    io.emit("user-joined", name); // Broadcast to all users
   });
 
-  socket.on("join-private-chat", (otherUserName) => {
-    const roomId = [users[socket.id], otherUserName].sort().join('-');
-    socket.join(roomId);
-  });
-
-  socket.on("send-private-message", (message, otherUserName) => {
-    const roomId = [users[socket.id], otherUserName].sort().join('-');
-    io.to(roomId).emit("receive-private-message", { 
+  // When a user sends a message
+  socket.on("send-message", (message) => {
+    io.emit("receive-message", { 
       message: message, 
       name: users[socket.id] 
     });
   });
 
+  // When a user disconnects
   socket.on('disconnect', () => {
-    const disconnectedUser = users[socket.id];
+    io.emit("user-left", users[socket.id]);
     delete users[socket.id];
-    delete userSockets[disconnectedUser];
   });
 });
+
+app.use(cors());
+app.use('/', express.static(path.join(__dirname, 'public')));
 
 httpServer.listen(process.env.PORT || 8000, () => {
   console.log('Server started at ', process.env.PORT || 8000);
