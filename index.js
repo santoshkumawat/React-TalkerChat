@@ -1,36 +1,41 @@
+// node server which will handle socket.io
 const express = require("express");
 const app = express();
-const http = require("http").Server(app);
-const io = require("socket.io")(http);
-const path = require("path");
+const http = require("http");
+const cors = require("cors");
 
-const PORT = process.env.PORT || 8000;
-
-// Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Handle socket connections
-io.on("connection", (socket) => {
-  console.log("A user connected");
-
-  // When a new user joins
-  socket.on("new-user-joined", (name) => {
-    console.log(name + " joined the chat");
-    io.emit("user-joined", name); // Broadcast to all users
-  });
-
-  // When a user sends a message
-  socket.on("send-message", (message) => {
-    io.emit("receive-message", message);
-  });
-
-  // When a user disconnects
-  socket.on("disconnect", () => {
-    console.log("A user disconnected");
-  });
+app.use(require("cors")());
+app.use('/', express.static('public'))
+app.get('test', (req, res) => {
+  res.status('200');
+  return res.send('Hello world');
+})
+// app.use((req, res, next) => {
+//   res.setHeader("Access-Control-Allow-Origin", "*");
+//   res.setHeader("Access-Control-Allow-Method", "GET, POST, PUT, PATCH, DELETE");
+//   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+//   next();
+// });
+const httpServer = http.createServer(app);
+httpServer.listen(process.env.PORT || 8000, () => {
+  console.log('Server started at ', process.env.PORT || 8000);
 });
-
-// Start the server
-http.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+const io = require("socket.io")(httpServer, {
+  cors: {
+    origin: "*",
+  },
+});
+const users = {};
+io.on("connection", (socket) => {
+  socket.on("new-user-joined", (name) => {
+    console.log("newuser ", name);
+    users[socket.id] = name;
+    socket.broadcast.emit("user-joined", name);
+  });
+  socket.on("send", (message) => {
+    socket.broadcast.emit("receive", {
+      message: message,
+      name: users[socket.id],
+    });
+  });
 });
