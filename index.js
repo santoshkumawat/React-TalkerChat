@@ -1,24 +1,12 @@
-// node server which will handle socket.io
-
 const express = require("express");
 const app = express();
 const http = require("http");
 const cors = require("cors");
-const path = require('path')
 
-app.use(require("cors")());
+app.use(cors()); 
 app.use('/', express.static(path.join(__dirname, 'public')));
-app.get('test', (req, res) => {
-  res.status('200');
-  return res.send('Hello world');
-})
 
-// app.use((req, res, next) => {
-//   res.setHeader("Access-Control-Allow-Origin", "*");
-//   res.setHeader("Access-Control-Allow-Method", "GET, POST, PUT, PATCH, DELETE");
-//   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-//   next();
-// });
+// ... (routes like '/test' if needed) 
 
 const httpServer = http.createServer(app);
 
@@ -28,24 +16,41 @@ httpServer.listen(process.env.PORT || 8000, () => {
 
 const io = require("socket.io")(httpServer, {
   cors: {
-    origin: "*",
+    origin: "*", 
   },
 });
 
-const users = {};
+const users = {}; 
+const userRooms = {}; // Track rooms users are in
+
 io.on("connection", (socket) => {
   socket.on("new-user-joined", (name) => {
-    console.log("newuser ", name);
-
     users[socket.id] = name;
     socket.broadcast.emit("user-joined", name);
   });
 
+  socket.on("join-private-chat", (otherUserId) => {
+    const roomId = [socket.id, otherUserId].sort().join('-');
+    socket.join(roomId);
 
-  socket.on("send", (message) => {
-    socket.broadcast.emit("receive", {
-      message: message,
-      name: users[socket.id],
+    // Keep track of room association 
+    if (userRooms[socket.id]) {
+      userRooms[socket.id].push(roomId);
+    } else {
+      userRooms[socket.id] = [roomId];
+    }
+  });
+
+  socket.on("send-private-message", (message, otherUserId) => {
+    const roomId = [socket.id, otherUserId].sort().join('-');
+    socket.to(roomId).emit("receive-private-message", { 
+      message: message, 
+      name: users[socket.id] 
     });
   });
-});
+
+  socket.on('disconnect', () => {
+    delete users[socket.id];
+    // Clean up rooms the user was in (optional, if needed)
+  });
+}); 
