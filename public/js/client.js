@@ -1,49 +1,36 @@
-const socket = io({
-  transports: ['websocket']
+// client.js
+const socket = io();
+
+const messageForm = document.getElementById("send-container");
+const messageInput = document.getElementById("messageInp");
+const messageBox = document.querySelector(".message-box");
+
+// Get username from prompt or user input
+const username = prompt("Enter your username:");
+if (username) {
+  document.getElementById("userName").innerText += username;
+  socket.emit("new-user-joined", username);
+}
+
+// Listen for new messages
+socket.on("receive-message", (data) => {
+  appendMessage(`${data.name}: ${data.message}`);
 });
 
-const form = document.getElementById("send-container");
+// Send message
+messageForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const message = messageInput.value.trim();
+  if (message) {
+    appendMessage(`You: ${message}`);
+    socket.emit("send-message", message);
+    messageInput.value = "";
+  }
+});
 
-const messageInput = document.getElementById("messageInp");
-
-const messageContainer = document.querySelector(".message-box");
-
-const UserNameShow = document.getElementById("userName");
-
-var audio = new Audio("../ting.mp3");
-
-const append = (message, position) => {
+// Append message to the chat box
+function appendMessage(message) {
   const messageElement = document.createElement("div");
   messageElement.innerText = message;
-  messageElement.classList.add("message");
-  messageElement.classList.add(position);
-
-  messageContainer.append(messageElement);
-  if (position == "left") {
-    audio.play();
-  }
-};
-
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-
-  const message = messageInput.value;
-  append(`You: ${message}`, "right");
-  socket.emit("send", message);
-  messageInput.value = " ";
-});
-
-const name = prompt("Enter Your Name To Join");
-socket.emit("new-user-joined", name);
-UserNameShow.append(name);
-
-socket.on("user-joined", (name) => {
-  append(`${name} joined the chat`, "right");
-});
-
-
-
-socket.on("receive", (data) => {
-  append(`${data.name}:${data.message}`, "left");
-
-});
+  messageBox.append(messageElement);
+}
