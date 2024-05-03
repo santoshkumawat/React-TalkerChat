@@ -1,36 +1,27 @@
-// client.js
 const socket = io();
 
-const messageForm = document.getElementById("send-container");
-const messageInput = document.getElementById("messageInp");
-const messageBox = document.querySelector(".message-box");
+socket.on("user-joined", (name) => {
+  console.log(`${name} joined the chat`);
+});
 
-// Get username from prompt or user input
-const username = prompt("Enter your username:");
-if (username) {
-  document.getElementById("userName").innerText += username;
-  socket.emit("new-user-joined", username);
-}
-
-// Listen for new messages
 socket.on("receive-message", (data) => {
+  console.log(`${data.name}: ${data.message}`);
   appendMessage(`${data.name}: ${data.message}`);
 });
 
-// Send message
-messageForm.addEventListener("submit", (e) => {
+document.getElementById("send-container").addEventListener("submit", (e) => {
   e.preventDefault();
+  const messageInput = document.getElementById("messageInp");
   const message = messageInput.value.trim();
   if (message) {
-    appendMessage(`You: ${message}`);
-    socket.emit("send-message", message);
+    socket.emit("send-message", { message });
     messageInput.value = "";
   }
 });
 
-// Append message to the chat box
 function appendMessage(message) {
+  const messageBox = document.querySelector(".message-box");
   const messageElement = document.createElement("div");
   messageElement.innerText = message;
-  messageBox.append(messageElement);
+  messageBox.appendChild(messageElement);
 }
