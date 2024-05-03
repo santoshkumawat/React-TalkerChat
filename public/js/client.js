@@ -1,36 +1,35 @@
-const socket = io();
-
-// Prompt user to enter their name when joining the chat
-const username = prompt("Please enter your name:");
-if (username) {
-  socket.emit("new-user-joined", username);
-} else {
-  // Handle case when user cancels prompt or enters empty name
-  // For example, you could redirect them or display an error message
-}
-
-document.getElementById("send-container").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const messageInput = document.getElementById("messageInp");
-  const message = messageInput.value.trim();
-  if (message) {
-    socket.emit("send-message", message);
-    messageInput.value = "";
-  }
+const socket = io({
+  transports: ['websocket']
 });
 
-socket.on("user-joined", (name) => {
-  console.log(`${name} joined the chat`);
-});
-
-socket.on("receive-message", (data) => {
-  console.log(`${data.name}: ${data.message}`);
-  appendMessage(`${data.name}: ${data.message}`);
-});
-
-function appendMessage(message) {
-  const messageBox = document.querySelector(".message-box");
+const form = document.getElementById("send-container");
+const messageInput = document.getElementById("messageInp");
+const messageContainer = document.querySelector(".message-box");
+const UserNameShow = document.getElementById("userName");
+var audio = new Audio("../ting.mp3");
+const append = (message, position) => {
   const messageElement = document.createElement("div");
   messageElement.innerText = message;
-  messageBox.appendChild(messageElement);
-}
+  messageElement.classList.add("message");
+  messageElement.classList.add(position);
+  messageContainer.append(messageElement);
+  if (position == "left") {
+    audio.play();
+  }
+};
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const message = messageInput.value;
+  append(`You: ${message}`, "right");
+  socket.emit("send", message);
+  messageInput.value = " ";
+});
+const name = prompt("Enter Your Name To Join");
+socket.emit("new-user-joined", name);
+UserNameShow.append(name);
+socket.on("user-joined", (name) => {
+  append(`${name} joined the chat`, "right");
+});
+socket.on("receive", (data) => {
+  append(`${data.name}:${data.message}`, "left");
+});
