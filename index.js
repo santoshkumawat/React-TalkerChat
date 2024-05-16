@@ -28,6 +28,7 @@ const io = require("socket.io") (httpServer, {
   cors: {
     origin: "*",
   },
+  transports: [ "websocket" ]
 });
 
 const users = {};
