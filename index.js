@@ -11,21 +11,25 @@ app.get('test', (req, res) => {
   res.status('200');
   return res.send('Hello world');
 })
+
 // app.use((req, res, next) => {
 //   res.setHeader("Access-Control-Allow-Origin", "*");
 //   res.setHeader("Access-Control-Allow-Method", "GET, POST, PUT, PATCH, DELETE");
 //   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 //   next();
 // });
+
 const httpServer = http.createServer(app);
-httpServer.listen(process.env.PORT || 8000, () => {
-  console.log('Server started at ', process.env.PORT || 8000);
+httpServer.listen(process.env.PORT || 3000, () => {
+  console.log('Server started at ', process.env.PORT || 3000);
 });
-const io = require("socket.io")(httpServer, {
+
+const io = require("socket.io") (httpServer, {
   cors: {
     origin: "*",
   },
 });
+
 const users = {};
 io.on("connection", (socket) => {
   socket.on("new-user-joined", (name) => {
