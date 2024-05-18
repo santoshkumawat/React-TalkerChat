@@ -1,4 +1,4 @@
-const socket = io("ws://echo.websocket.org", {
+const socket = io("wss://echo.websocket.org", {
   transports: ['websocket']
 });
 
